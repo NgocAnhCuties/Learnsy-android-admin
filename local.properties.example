@@ -1,0 +1,8 @@
+# Điền các key thật vào đây — KHÔNG commit file này lên Git.
+sdk.dir=/path/to/android/sdk
+
+SUPA_URL=https://your-project.supabase.co
+SUPA_KEY=your-supabase-anon-key
+ADMIN_API_KEY=your-admin-api-key
+UPSTASH_URL=https://your-instance.upstash.io
+UPSTASH_TOKEN=your-upstash-token

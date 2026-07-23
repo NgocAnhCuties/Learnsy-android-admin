@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App này dùng Jetpack Compose thuần (không có thư viện
+         com.google.android.material), nên không thể tham chiếu
+         Theme.Material3.DayNight.NoActionBar — style đó chỉ tồn tại
+         khi có dependency material-components-android. Kế thừa từ
+         Theme.DeviceDefault.DayNight (có sẵn trong platform Android)
+         và tắt action bar/title mặc định để Compose tự vẽ toàn bộ UI. -->
+    <style name="Theme.LearnsyAdmin" parent="android:Theme.DeviceDefault.DayNight">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+</resources>
