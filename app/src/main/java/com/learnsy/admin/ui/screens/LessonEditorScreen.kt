@@ -134,8 +134,17 @@ fun LessonEditorScreen(
             return
         }
         scope.launch {
-            editorVm.manualSave()
-            onBack()
+            val saved = editorVm.manualSave()
+            if (saved) {
+                onBack()
+            } else {
+                val msg = state.lastError
+                if (state.titleDupWarn || msg == "Tên bài tập bị trùng") {
+                    ToastCenter.show("Tên bài tập bị trùng, đổi tên khác nhé!", "⚠️", Color(0xFFF59E0B))
+                } else {
+                    ToastCenter.show("Lưu thất bại: ${msg ?: "không rõ nguyên nhân"} — thử lại nhé!", "❌", Color(0xFFEF4444))
+                }
+            }
         }
     }
 
