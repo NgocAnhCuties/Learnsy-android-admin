@@ -109,7 +109,7 @@ fun QEditor(
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(3.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier
                     .clip(RoundedCornerShape(999.dp))
                     .background(accentColor.copy(alpha = 0.12f))
@@ -119,10 +119,10 @@ fun QEditor(
                 // Icon theo loại câu hỏi — khớp getTypes() trong app.jsx:
                 // true_false→Flower, multiple→Heart, multi_select→Star, fill_blank→Sparkle
                 when (q) {
-                    is Question.TrueFalse -> FlowerIcon(size = 13, color = accentColor)
-                    is Question.Multiple -> HeartIcon(size = 12, color = accentColor)
-                    is Question.MultiSelect -> Icon(Icons.Default.Star, null, tint = accentColor, modifier = Modifier.size(11.dp))
-                    is Question.FillBlank -> SparkleIcon(size = 11, color = accentColor)
+                    is Question.TrueFalse -> FlowerIcon(size = 15, color = accentColor)
+                    is Question.Multiple -> HeartIcon(size = 15, color = accentColor)
+                    is Question.MultiSelect -> Icon(Icons.Default.Star, null, tint = accentColor, modifier = Modifier.size(15.dp))
+                    is Question.FillBlank -> SparkleIcon(size = 15, color = accentColor)
                 }
                 Text(typeShort, fontSize = 10.sp, fontWeight = FontWeight.Black, color = accentColor)
             }
