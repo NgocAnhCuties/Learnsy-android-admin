@@ -236,19 +236,19 @@ private fun TrueFalseFields(
         q.items.forEachIndexed { ii, item ->
             Row(
                 verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Box(
                     modifier = Modifier
-                        .padding(top = 6.dp)
-                        .size(17.dp)
-                        .clip(RoundedCornerShape(5.dp))
+                        .padding(top = 9.dp)
+                        .size(22.dp)
+                        .clip(RoundedCornerShape(7.dp))
                         .background(colors.lavL)
-                        .border(1.dp, colors.border2, RoundedCornerShape(5.dp)),
+                        .border(1.dp, colors.border2, RoundedCornerShape(7.dp)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(('a' + ii).toString(), fontSize = 9.sp, fontWeight = FontWeight.Black, color = colors.lav)
+                    Text(('a' + ii).toString(), fontSize = 11.sp, fontWeight = FontWeight.Black, color = colors.lav)
                 }
                 MiniRichInp(
                     valueHtml = item.text,
@@ -260,32 +260,32 @@ private fun TrueFalseFields(
                     modifier = Modifier.weight(1f)
                 )
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(3.dp),
-                    modifier = Modifier.padding(top = 3.dp)
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    modifier = Modifier.padding(top = 4.dp)
                 ) {
                     IconButton(
                         onClick = {
                             onChange(q.copy(items = q.items.mapIndexed { i, it -> if (i == ii) it.copy(answer = true) else it }))
                         },
                         modifier = Modifier
-                            .size(24.dp)
-                            .clip(RoundedCornerShape(6.dp))
+                            .size(18.dp)
+                            .clip(RoundedCornerShape(5.dp))
                             .background(if (item.answer) Color(0xFF10B981) else colors.mintL)
-                            .border(1.dp, if (item.answer) Color.Transparent else Color(0xFFBBF7D0), RoundedCornerShape(6.dp))
+                            .border(1.dp, if (item.answer) Color.Transparent else Color(0xFFBBF7D0), RoundedCornerShape(5.dp))
                     ) {
-                        Icon(Icons.Default.Check, "Đúng", tint = if (item.answer) Color.White else colors.mint, modifier = Modifier.size(10.dp))
+                        Icon(Icons.Default.Check, "Đúng", tint = if (item.answer) Color.White else colors.mint, modifier = Modifier.size(8.dp))
                     }
                     IconButton(
                         onClick = {
                             onChange(q.copy(items = q.items.mapIndexed { i, it -> if (i == ii) it.copy(answer = false) else it }))
                         },
                         modifier = Modifier
-                            .size(24.dp)
-                            .clip(RoundedCornerShape(6.dp))
+                            .size(18.dp)
+                            .clip(RoundedCornerShape(5.dp))
                             .background(if (!item.answer) Color(0xFFEF4444) else colors.rosePale)
-                            .border(1.dp, if (!item.answer) Color.Transparent else Color(0xFFFECDD3), RoundedCornerShape(6.dp))
+                            .border(1.dp, if (!item.answer) Color.Transparent else Color(0xFFFECDD3), RoundedCornerShape(5.dp))
                     ) {
-                        Icon(Icons.Default.Close, "Sai", tint = if (!item.answer) Color.White else Color(0xFFEF4444), modifier = Modifier.size(10.dp))
+                        Icon(Icons.Default.Close, "Sai", tint = if (!item.answer) Color.White else Color(0xFFEF4444), modifier = Modifier.size(8.dp))
                     }
                     if (q.items.size > 2) {
                         IconButton(
@@ -293,13 +293,13 @@ private fun TrueFalseFields(
                                 onChange(q.copy(items = q.items.filterIndexed { i, _ -> i != ii }))
                             },
                             modifier = Modifier
-                                .width(21.dp)
-                                .height(24.dp)
-                                .clip(RoundedCornerShape(6.dp))
+                                .width(15.dp)
+                                .height(18.dp)
+                                .clip(RoundedCornerShape(5.dp))
                                 .background(colors.bg)
-                                .border(1.dp, colors.border, RoundedCornerShape(6.dp))
+                                .border(1.dp, colors.border, RoundedCornerShape(5.dp))
                         ) {
-                            Icon(Icons.Default.Remove, "Xoá ý", tint = colors.text4, modifier = Modifier.size(9.dp))
+                            Icon(Icons.Default.Remove, "Xoá ý", tint = colors.text4, modifier = Modifier.size(7.dp))
                         }
                     }
                 }
@@ -332,16 +332,16 @@ private fun MultipleFields(
     Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
         FieldLabel("Lựa chọn — bấm chữ cái để chọn đáp án đúng", colors)
         q.options.forEachIndexed { i, opt ->
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                 val isCorrect = q.correct == i
                 IconButton(
                     onClick = { onChange(q.copy(correct = i)) },
                     modifier = Modifier
-                        .size(22.dp)
+                        .size(30.dp)
                         .clip(CircleShape)
                         .background(if (isCorrect) Color(0xFF10B981) else colors.lavL)
                 ) {
-                    Text(LETTERS[i], fontSize = 10.sp, fontWeight = FontWeight.Black, color = if (isCorrect) Color.White else colors.lav)
+                    Text(LETTERS[i], fontSize = 12.sp, fontWeight = FontWeight.Black, color = if (isCorrect) Color.White else colors.lav)
                 }
                 MiniRichInp(
                     valueHtml = opt,
@@ -363,9 +363,9 @@ private fun MultipleFields(
                             }
                             onChange(q.copy(options = newOptions, correct = newCorrect))
                         },
-                        modifier = Modifier.size(19.dp)
+                        modifier = Modifier.size(26.dp)
                     ) {
-                        Icon(Icons.Default.Close, "Xoá lựa chọn", tint = colors.text4, modifier = Modifier.size(9.dp))
+                        Icon(Icons.Default.Close, "Xoá lựa chọn", tint = colors.text4, modifier = Modifier.size(11.dp))
                     }
                 }
             }
@@ -399,18 +399,18 @@ private fun MultiSelectFields(
     Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
         FieldLabel("Lựa chọn — bấm để chọn nhiều đáp án đúng", colors)
         q.options.forEachIndexed { i, opt ->
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                 val isCorrect = i in q.correct
                 IconButton(
                     onClick = {
                         onChange(q.copy(correct = if (i in q.correct) q.correct - i else q.correct + i))
                     },
                     modifier = Modifier
-                        .size(22.dp)
-                        .clip(RoundedCornerShape(6.dp))
+                        .size(30.dp)
+                        .clip(RoundedCornerShape(9.dp))
                         .background(if (isCorrect) Color(0xFF10B981) else colors.lavL)
                 ) {
-                    Text(LETTERS[i], fontSize = 10.sp, fontWeight = FontWeight.Black, color = if (isCorrect) Color.White else colors.lav)
+                    Text(LETTERS[i], fontSize = 12.sp, fontWeight = FontWeight.Black, color = if (isCorrect) Color.White else colors.lav)
                 }
                 MiniRichInp(
                     valueHtml = opt,
@@ -434,9 +434,9 @@ private fun MultiSelectFields(
                             }
                             onChange(q.copy(options = newOptions, correct = newCorrect))
                         },
-                        modifier = Modifier.size(19.dp)
+                        modifier = Modifier.size(26.dp)
                     ) {
-                        Icon(Icons.Default.Close, "Xoá lựa chọn", tint = colors.text4, modifier = Modifier.size(9.dp))
+                        Icon(Icons.Default.Close, "Xoá lựa chọn", tint = colors.text4, modifier = Modifier.size(11.dp))
                     }
                 }
             }
