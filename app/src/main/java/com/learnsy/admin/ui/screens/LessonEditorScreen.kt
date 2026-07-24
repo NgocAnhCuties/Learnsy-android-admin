@@ -116,6 +116,13 @@ fun LessonEditorScreen(
 
     // Tương đương goHome() trong app.jsx — chặn thoát nếu chưa đặt tên bài,
     // nhấp nháy cảnh báo đỏ 3s rồi tự tắt.
+    //
+    // FIX: trước đây gọi onBack() ngay lập tức mà không chờ lưu xong. Vì
+    // auto-save có debounce 800ms và cả manualSave lẫn debounce đều là
+    // network call bất đồng bộ, người dùng gõ tên → thoát nhanh có thể
+    // điều hướng về danh sách TRƯỚC KHI Supabase kịp ghi — màn danh sách
+    // load lại thấy dữ liệu cũ (bug: lưu xong thoát ra vào lại mất tên).
+    // Giờ luôn chờ manualSave() hoàn tất trước khi điều hướng.
     fun handleBack() {
         if (state.title.isBlank()) {
             noTitleWarn = true
@@ -126,7 +133,10 @@ fun LessonEditorScreen(
             }
             return
         }
-        onBack()
+        scope.launch {
+            editorVm.manualSave()
+            onBack()
+        }
     }
 
     androidx.activity.compose.BackHandler(onBack = { handleBack() })
@@ -263,7 +273,7 @@ fun LessonEditorScreen(
                 }
             )
             Spacer(Modifier.width(6.dp))
-            ManualSaveButton(colors = colors, onClick = { editorVm.manualSave() })
+            ManualSaveButton(colors = colors, onClick = { scope.launch { editorVm.manualSave() } })
             Spacer(Modifier.width(6.dp))
             SaveStatusButton(status = state.saveStatus, lastError = state.lastError, colors = colors)
         }
