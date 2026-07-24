@@ -94,42 +94,42 @@ fun QEditor(
                 .fillMaxWidth()
                 .clickable { open = !open }
                 .background(if (open) colors.surface else colors.bg)
-                .padding(horizontal = 13.dp, vertical = 11.dp),
+                .padding(horizontal = 10.dp, vertical = 7.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(9.dp)
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Box(
                 modifier = Modifier
-                    .size(26.dp)
-                    .clip(RoundedCornerShape(9.dp))
+                    .size(19.dp)
+                    .clip(RoundedCornerShape(6.dp))
                     .background(colors.grad),
                 contentAlignment = Alignment.Center
             ) {
-                Text("${qi + 1}", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Black)
+                Text("${qi + 1}", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Black)
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
                 modifier = Modifier
                     .clip(RoundedCornerShape(999.dp))
                     .background(accentColor.copy(alpha = 0.12f))
                     .border(1.dp, accentColor.copy(alpha = 0.3f), RoundedCornerShape(999.dp))
-                    .padding(horizontal = 8.dp, vertical = 3.dp)
+                    .padding(horizontal = 5.dp, vertical = 2.dp)
             ) {
                 // Icon theo loại câu hỏi — khớp getTypes() trong app.jsx:
                 // true_false→Flower, multiple→Heart, multi_select→Star, fill_blank→Sparkle
                 when (q) {
-                    is Question.TrueFalse -> FlowerIcon(size = 15, color = accentColor)
-                    is Question.Multiple -> HeartIcon(size = 15, color = accentColor)
-                    is Question.MultiSelect -> Icon(Icons.Default.Star, null, tint = accentColor, modifier = Modifier.size(15.dp))
-                    is Question.FillBlank -> SparkleIcon(size = 15, color = accentColor)
+                    is Question.TrueFalse -> FlowerIcon(size = 9, color = accentColor)
+                    is Question.Multiple -> HeartIcon(size = 9, color = accentColor)
+                    is Question.MultiSelect -> Icon(Icons.Default.Star, null, tint = accentColor, modifier = Modifier.size(9.dp))
+                    is Question.FillBlank -> SparkleIcon(size = 9, color = accentColor)
                 }
-                Text(typeShort, fontSize = 10.sp, fontWeight = FontWeight.Black, color = accentColor)
+                Text(typeShort, fontSize = 8.sp, fontWeight = FontWeight.Black, color = accentColor)
             }
             Text(
                 previewText,
                 modifier = Modifier.weight(1f),
-                fontSize = 12.sp,
+                fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
                 color = colors.text2,
                 maxLines = 1
@@ -138,18 +138,18 @@ fun QEditor(
                 IconButton(
                     onClick = onRemove,
                     modifier = Modifier
-                        .size(26.dp)
+                        .size(19.dp)
                         .clip(CircleShape)
                         .background(colors.rosePale)
-                        .border(1.5.dp, Color(0xFFFECDD3), CircleShape)
+                        .border(1.dp, Color(0xFFFECDD3), CircleShape)
                 ) {
-                    Icon(Icons.Default.Close, "Xoá câu hỏi", tint = Color(0xFFEF4444), modifier = Modifier.size(12.dp))
+                    Icon(Icons.Default.Close, "Xoá câu hỏi", tint = Color(0xFFEF4444), modifier = Modifier.size(9.dp))
                 }
             }
             val rotation by animateFloatAsState(if (open) 180f else 0f, animationSpec = tween(200), label = "chevron")
             Box(
                 modifier = Modifier
-                    .size(22.dp)
+                    .size(16.dp)
                     .clip(CircleShape)
                     .background(if (open) colors.lavL else Color.Transparent),
                 contentAlignment = Alignment.Center
@@ -158,7 +158,7 @@ fun QEditor(
                     Icons.Default.KeyboardArrowDown,
                     contentDescription = if (open) "Thu gọn" else "Mở rộng",
                     tint = if (open) colors.lav else colors.text4,
-                    modifier = Modifier.size(14.dp).rotate(rotation)
+                    modifier = Modifier.size(11.dp).rotate(rotation)
                 )
             }
         }
