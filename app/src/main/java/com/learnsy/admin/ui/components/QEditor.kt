@@ -218,7 +218,14 @@ private fun TrueFalseFields(
             onValueChange = { onChange(q.copy(source = it)) },
             placeholder = { Text("(NXB, năm, trang...)") },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = colors.lav2,
+                unfocusedBorderColor = colors.border,
+                focusedContainerColor = colors.surface,
+                unfocusedContainerColor = colors.surface
+            )
         )
     }
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -228,19 +235,20 @@ private fun TrueFalseFields(
         }
         q.items.forEachIndexed { ii, item ->
             Row(
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Box(
                     modifier = Modifier
-                        .size(28.dp)
-                        .clip(RoundedCornerShape(9.dp))
+                        .padding(top = 9.dp)
+                        .size(22.dp)
+                        .clip(RoundedCornerShape(7.dp))
                         .background(colors.lavL)
-                        .border(1.dp, colors.border2, RoundedCornerShape(9.dp)),
+                        .border(1.dp, colors.border2, RoundedCornerShape(7.dp)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(('a' + ii).toString(), fontSize = 12.sp, fontWeight = FontWeight.Black, color = colors.lav)
+                    Text(('a' + ii).toString(), fontSize = 11.sp, fontWeight = FontWeight.Black, color = colors.lav)
                 }
                 MiniRichInp(
                     valueHtml = item.text,
@@ -251,39 +259,48 @@ private fun TrueFalseFields(
                     colors = colors,
                     modifier = Modifier.weight(1f)
                 )
-                IconButton(
-                    onClick = {
-                        onChange(q.copy(items = q.items.mapIndexed { i, it -> if (i == ii) it.copy(answer = true) else it }))
-                    },
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(if (item.answer) Color(0xFF10B981) else colors.mintL)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier.padding(top = 4.dp)
                 ) {
-                    Icon(Icons.Default.Check, "Đúng", tint = if (item.answer) Color.White else colors.mint)
-                }
-                IconButton(
-                    onClick = {
-                        onChange(q.copy(items = q.items.mapIndexed { i, it -> if (i == ii) it.copy(answer = false) else it }))
-                    },
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(if (!item.answer) Color(0xFFEF4444) else colors.rosePale)
-                ) {
-                    Icon(Icons.Default.Close, "Sai", tint = if (!item.answer) Color.White else Color(0xFFEF4444))
-                }
-                if (q.items.size > 2) {
                     IconButton(
                         onClick = {
-                            onChange(q.copy(items = q.items.filterIndexed { i, _ -> i != ii }))
+                            onChange(q.copy(items = q.items.mapIndexed { i, it -> if (i == ii) it.copy(answer = true) else it }))
                         },
                         modifier = Modifier
-                            .size(38.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(colors.bg2)
+                            .size(34.dp)
+                            .clip(RoundedCornerShape(9.dp))
+                            .background(if (item.answer) Color(0xFF10B981) else colors.mintL)
+                            .border(1.5.dp, if (item.answer) Color.Transparent else Color(0xFFBBF7D0), RoundedCornerShape(9.dp))
                     ) {
-                        Icon(Icons.Default.Remove, "Xoá ý", tint = colors.text4, modifier = Modifier.size(14.dp))
+                        Icon(Icons.Default.Check, "Đúng", tint = if (item.answer) Color.White else colors.mint, modifier = Modifier.size(14.dp))
+                    }
+                    IconButton(
+                        onClick = {
+                            onChange(q.copy(items = q.items.mapIndexed { i, it -> if (i == ii) it.copy(answer = false) else it }))
+                        },
+                        modifier = Modifier
+                            .size(34.dp)
+                            .clip(RoundedCornerShape(9.dp))
+                            .background(if (!item.answer) Color(0xFFEF4444) else colors.rosePale)
+                            .border(1.5.dp, if (!item.answer) Color.Transparent else Color(0xFFFECDD3), RoundedCornerShape(9.dp))
+                    ) {
+                        Icon(Icons.Default.Close, "Sai", tint = if (!item.answer) Color.White else Color(0xFFEF4444), modifier = Modifier.size(14.dp))
+                    }
+                    if (q.items.size > 2) {
+                        IconButton(
+                            onClick = {
+                                onChange(q.copy(items = q.items.filterIndexed { i, _ -> i != ii }))
+                            },
+                            modifier = Modifier
+                                .width(30.dp)
+                                .height(34.dp)
+                                .clip(RoundedCornerShape(9.dp))
+                                .background(colors.bg)
+                                .border(1.5.dp, colors.border, RoundedCornerShape(9.dp))
+                        ) {
+                            Icon(Icons.Default.Remove, "Xoá ý", tint = colors.text4, modifier = Modifier.size(12.dp))
+                        }
                     }
                 }
             }
@@ -457,7 +474,14 @@ private fun FillBlankFields(
             onValueChange = { onChange(q.copy(answer = it)) },
             placeholder = { Text("Nhập đáp án chính xác...") },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = colors.lav2,
+                unfocusedBorderColor = colors.border,
+                focusedContainerColor = colors.surface,
+                unfocusedContainerColor = colors.surface
+            )
         )
     }
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -467,7 +491,14 @@ private fun FillBlankFields(
             onValueChange = { onChange(q.copy(hint = it)) },
             placeholder = { Text("Gợi ý dành cho học sinh...") },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = colors.lav2,
+                unfocusedBorderColor = colors.border,
+                focusedContainerColor = colors.surface,
+                unfocusedContainerColor = colors.surface
+            )
         )
     }
 }
