@@ -95,31 +95,38 @@ class LessonEditorViewModel(
 
     // Tương đương manualSave() trong app.jsx — lưu ngay lập tức, bỏ qua debounce 800ms.
     // Dùng khi người dùng muốn chắc chắn bài đã lưu trước khi thoát (VD: chuẩn bị tắt app).
-    fun manualSave() {
+    //
+    // SUSPEND thay vì fire-and-forget: trước đây hàm này launch một job nền rồi
+    // return ngay, khiến người gọi (ví dụ handleBack() điều hướng thoát màn hình)
+    // không có cách nào biết khi nào lưu xong. Nếu người dùng bấm lưu rồi thoát
+    // ngay lập tức, listVm.load() ở màn danh sách có thể fetch lại TRƯỚC KHI
+    // upsert lên Supabase kịp hoàn tất — dẫn tới thấy dữ liệu cũ (bug đã gặp:
+    // gõ tên → lưu → thoát → vào lại vẫn "Chưa đặt tên"). Giờ gọi trực tiếp
+    // trong viewModelScope và await xong mới return, để người gọi có thể
+    // suspend chờ trước khi điều hướng.
+    suspend fun manualSave() {
         val lessonId = _uiState.value.lessonId ?: return
         autoSaveJob?.cancel()
-        autoSaveJob = viewModelScope.launch {
-            val s = _uiState.value
-            if (repo.isDuplicateTitle(s.title, s.lessonId, allLessonsProvider())) {
-                _uiState.update { it.copy(saveStatus = SaveStatus.DUP_BLOCKED, lastError = "Tên bài tập bị trùng") }
-                return@launch
-            }
-            _uiState.update { it.copy(saveStatus = SaveStatus.SAVING) }
-            try {
-                repo.save(
-                    Lesson(
-                        id = lessonId,
-                        title = s.title,
-                        subject = s.subject,
-                        password = s.password,
-                        timerLimit = s.timerLimit,
-                        questions = s.questions
-                    )
+        val s = _uiState.value
+        if (repo.isDuplicateTitle(s.title, s.lessonId, allLessonsProvider())) {
+            _uiState.update { it.copy(saveStatus = SaveStatus.DUP_BLOCKED, lastError = "Tên bài tập bị trùng") }
+            return
+        }
+        _uiState.update { it.copy(saveStatus = SaveStatus.SAVING) }
+        try {
+            repo.save(
+                Lesson(
+                    id = lessonId,
+                    title = s.title,
+                    subject = s.subject,
+                    password = s.password,
+                    timerLimit = s.timerLimit,
+                    questions = s.questions
                 )
-                _uiState.update { it.copy(saveStatus = SaveStatus.SAVED, lastError = null) }
-            } catch (e: Exception) {
-                _uiState.update { it.copy(saveStatus = SaveStatus.ERROR, lastError = e.message) }
-            }
+            )
+            _uiState.update { it.copy(saveStatus = SaveStatus.SAVED, lastError = null) }
+        } catch (e: Exception) {
+            _uiState.update { it.copy(saveStatus = SaveStatus.ERROR, lastError = e.message) }
         }
     }
 
