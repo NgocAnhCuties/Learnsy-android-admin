@@ -67,7 +67,7 @@ private val exportJson = Json { prettyPrint = true; encodeDefaults = true }
 // Tương đương phần soạn bài (khi mở 1 lesson) trong app.jsx — ghép
 // LessonEditorViewModel (state + auto-save debounce) với QEditor cho từng câu hỏi,
 // và MergeQuestionsModal (merge-questions.css) để gộp câu từ bài khác vào.
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun LessonEditorScreen(
     colors: LearnsyColors,
@@ -321,33 +321,50 @@ fun LessonEditorScreen(
 
             var settingsExpanded by remember { mutableStateOf(false) }
             Column {
+                // Khớp JSX: nút pill gọn 'padding:6px 13px', border đổi màu theo trạng thái mở,
+                // KHÔNG chiếm full width (trước đó Compose dùng Row full-width sai kiểu).
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(colors.bg2)
+                    horizontalArrangement = Arrangement.spacedBy(7.dp),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(999.dp))
+                        .background(if (settingsExpanded) colors.lavL else colors.bg2)
+                        .border(1.5.dp, if (settingsExpanded) colors.lav else colors.border, RoundedCornerShape(999.dp))
                         .clickable { settingsExpanded = !settingsExpanded }
-                        .padding(horizontal = 12.dp, vertical = 10.dp)
+                        .padding(horizontal = 13.dp, vertical = 6.dp)
                 ) {
-                    Text("⚙️", fontSize = 13.sp)
-                    Spacer(Modifier.width(6.dp))
-                    Text("Cài đặt đề thi", fontSize = 12.sp, fontWeight = FontWeight.Black, color = colors.text2, modifier = Modifier.weight(1f))
+                    Icon(Icons.Default.Settings, null, tint = if (settingsExpanded) colors.lav else colors.text3, modifier = Modifier.size(13.dp))
+                    Text(
+                        "Cài đặt đề thi",
+                        fontSize = 11.sp, fontWeight = FontWeight.ExtraBold,
+                        color = if (settingsExpanded) colors.lav else colors.text3
+                    )
                     Icon(
                         if (settingsExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                        null, tint = colors.text3, modifier = Modifier.size(16.dp)
+                        null, tint = if (settingsExpanded) colors.lav else colors.text3, modifier = Modifier.size(10.dp)
                     )
                 }
                 if (settingsExpanded) {
+                    // Khớp JSX: box nền bg2, border2, radius 14, padding '13px 14px'
                     Column(
-                        modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp)
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(colors.bg2)
+                            .border(1.5.dp, colors.border2, RoundedCornerShape(14.dp))
+                            .padding(horizontal = 14.dp, vertical = 13.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Icon(Icons.Default.Lock, null, tint = colors.text3, modifier = Modifier.size(13.dp))
-                            Text("Mật khẩu:", fontSize = 11.sp, fontWeight = FontWeight.Black, color = colors.text3)
+                            Icon(Icons.Default.Lock, null, tint = colors.text3, modifier = Modifier.size(11.dp))
+                            Text(
+                                "Mật khẩu:", fontSize = 11.sp, fontWeight = FontWeight.Black,
+                                color = colors.text3, letterSpacing = 0.5.sp
+                            )
                             OutlinedTextField(
                                 value = state.password, onValueChange = editorVm::setPassword,
-                                placeholder = { Text("Để trống = không cần mật khẩu", fontSize = 11.sp) },
+                                placeholder = { Text("Để trống = không cần mật khẩu", fontSize = 12.sp) },
                                 singleLine = true,
                                 shape = RoundedCornerShape(999.dp),
                                 textStyle = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Bold),
@@ -357,63 +374,95 @@ fun LessonEditorScreen(
                                     focusedContainerColor = if (state.password.isNotEmpty()) colors.lavPale else Color.Transparent,
                                     unfocusedContainerColor = if (state.password.isNotEmpty()) colors.lavPale else Color.Transparent
                                 ),
-                                modifier = Modifier.weight(1f).height(42.dp)
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 5.dp),
+                                modifier = Modifier.weight(1f)
                             )
+                            // Badge "Đã đặt" khi có mật khẩu — khớp JSX dòng 1595, trước đó thiếu hoàn toàn.
+                            if (state.password.isNotEmpty()) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(999.dp))
+                                        .background(colors.lavL)
+                                        .border(1.dp, colors.border2, RoundedCornerShape(999.dp))
+                                        .padding(horizontal = 8.dp, vertical = 2.dp)
+                                ) {
+                                    Icon(Icons.Default.Lock, null, tint = colors.lav, modifier = Modifier.size(11.dp))
+                                    Text("Đã đặt", fontSize = 10.sp, fontWeight = FontWeight.ExtraBold, color = colors.lav)
+                                }
+                            }
                         }
 
-                        Column {
-                            Text("⏱ GIỚI HẠN THỜI GIAN", fontSize = 10.sp, fontWeight = FontWeight.Black, color = colors.text3, modifier = Modifier.padding(bottom = 4.dp))
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
-                            ) {
-                                listOf(0, 5, 10, 15, 20, 30, 45, 60).forEach { m ->
-                                    val active = state.timerLimit == m
-                                    Box(
-                                        modifier = Modifier.clip(RoundedCornerShape(999.dp))
-                                            .background(if (active) colors.roseL else colors.bg2)
-                                            .border(1.5.dp, if (active) colors.rose else colors.border, RoundedCornerShape(999.dp))
-                                            .clickable { editorVm.setTimerLimit(m) }
-                                            .padding(horizontal = 11.dp, vertical = 6.dp)
-                                    ) {
-                                        Text(
-                                            if (m == 0) "Không" else "${m}p",
-                                            fontSize = 11.sp, fontWeight = FontWeight.Black,
-                                            color = if (active) colors.rose else colors.text3
-                                        )
-                                    }
+                        // Khớp JSX: label và các nút cùng chung 1 FlowRow (flexWrap), không
+                        // tách label ra dòng riêng như trước. padding nút: '4px 11px'.
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                "⏱ Giới hạn thời gian:", fontSize = 11.sp, fontWeight = FontWeight.Black,
+                                color = colors.text3, letterSpacing = 0.5.sp,
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            )
+                            listOf(0, 5, 10, 15, 20, 30, 45, 60).forEach { m ->
+                                val active = state.timerLimit == m
+                                Box(
+                                    modifier = Modifier.clip(RoundedCornerShape(999.dp))
+                                        .background(if (active) colors.roseL else colors.bg2)
+                                        .border(1.5.dp, if (active) colors.rose else colors.border, RoundedCornerShape(999.dp))
+                                        .clickable { editorVm.setTimerLimit(m) }
+                                        .padding(horizontal = 11.dp, vertical = 4.dp)
+                                ) {
+                                    Text(
+                                        if (m == 0) "Không" else "${m}p",
+                                        fontSize = 11.sp, fontWeight = FontWeight.Black,
+                                        color = if (active) colors.rose else colors.text3
+                                    )
                                 }
                             }
                         }
 
                         // Tương đương "Card Blur" trong Cài đặt đề thi (app.jsx) — dùng chung
                         // key learnsy_card_blur với Dashboard/SettingsPanel để đồng bộ toàn app.
-                        Column {
-                            Text("BLUR CARD", fontSize = 10.sp, fontWeight = FontWeight.Black, color = colors.text3, modifier = Modifier.padding(bottom = 4.dp))
+                        // Khớp JSX: label + nút cùng FlowRow, icon 2 vòng tròn overlap, padding '4px 12px'.
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
                             Row(
-                                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                modifier = Modifier.align(Alignment.CenterVertically)
                             ) {
-                                data class BlurOpt(val level: CardBlurLevel, val label: String, val desc: String, val c: Color, val bg: Color, val bd: Color)
-                                listOf(
-                                    BlurOpt(CardBlurLevel.OFF, "Tắt", "không blur", colors.text3, colors.bg2, colors.border),
-                                    BlurOpt(CardBlurLevel.FIFTY, "50%", "nhẹ, xuyên card", Color(0xFF0EA5E9), Color(0xFFE0F2FE), Color(0xFFBAE6FD)),
-                                    BlurOpt(CardBlurLevel.EIGHTY_FIVE, "85%", "mạnh, trong suốt", Color(0xFF8B5CF6), colors.lavL, colors.border2)
-                                ).forEach { opt ->
-                                    val active = cardBlur == opt.level
-                                    Column(
-                                        modifier = Modifier.clip(RoundedCornerShape(12.dp))
-                                            .background(if (active) opt.bg else colors.bg2)
-                                            .border(1.5.dp, if (active) opt.c else colors.border, RoundedCornerShape(12.dp))
-                                            .clickable {
-                                                cardBlur = opt.level
-                                                settingsStore.cardBlur = opt.level
-                                            }
-                                            .padding(horizontal = 12.dp, vertical = 4.dp)
-                                    ) {
-                                        Text(opt.label, fontSize = 11.sp, fontWeight = FontWeight.Black, color = if (active) opt.c else colors.text3)
-                                        Text(opt.desc, fontSize = 9.sp, fontWeight = FontWeight.SemiBold, color = if (active) opt.c else colors.text4)
-                                    }
+                                Icon(Icons.Default.Circle, null, tint = colors.text3, modifier = Modifier.size(12.dp))
+                                Text(
+                                    "Blur card:", fontSize = 11.sp, fontWeight = FontWeight.Black,
+                                    color = colors.text3, letterSpacing = 0.5.sp
+                                )
+                            }
+                            data class BlurOpt(val level: CardBlurLevel, val label: String, val desc: String, val c: Color, val bg: Color)
+                            listOf(
+                                BlurOpt(CardBlurLevel.OFF, "Tắt", "không blur", colors.text3, colors.bg2),
+                                BlurOpt(CardBlurLevel.FIFTY, "50%", "nhẹ, xuyên card", Color(0xFF0EA5E9), Color(0xFFE0F2FE)),
+                                BlurOpt(CardBlurLevel.EIGHTY_FIVE, "85%", "mạnh, trong suốt", Color(0xFF8B5CF6), colors.lavL)
+                            ).forEach { opt ->
+                                val active = cardBlur == opt.level
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(1.dp),
+                                    modifier = Modifier.clip(RoundedCornerShape(12.dp))
+                                        .background(if (active) opt.bg else colors.bg2)
+                                        .border(1.5.dp, if (active) opt.c else colors.border, RoundedCornerShape(12.dp))
+                                        .clickable {
+                                            cardBlur = opt.level
+                                            settingsStore.cardBlur = opt.level
+                                        }
+                                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                                ) {
+                                    Text(opt.label, fontSize = 11.sp, fontWeight = FontWeight.Black, color = if (active) opt.c else colors.text3)
+                                    Text(opt.desc, fontSize = 9.sp, fontWeight = FontWeight.SemiBold, color = if (active) opt.c else colors.text4)
                                 }
                             }
                         }
