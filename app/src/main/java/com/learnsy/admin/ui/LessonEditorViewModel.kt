@@ -104,16 +104,26 @@ class LessonEditorViewModel(
     // gõ tên → lưu → thoát → vào lại vẫn "Chưa đặt tên"). Giờ gọi trực tiếp
     // trong viewModelScope và await xong mới return, để người gọi có thể
     // suspend chờ trước khi điều hướng.
-    suspend fun manualSave() {
-        val lessonId = _uiState.value.lessonId ?: return
+    // FIX: trước đây hàm này không có giá trị trả về, nên handleBack() ở màn
+    // editor gọi manualSave() rồi LUÔN điều hướng về danh sách ngay sau đó —
+    // kể cả khi upsert lên Supabase thất bại (mất mạng, RLS chặn, timeout...).
+    // Exception đã bị try/catch nuốt vào saveStatus/lastError của editor,
+    // nhưng người gọi (handleBack) không đọc lại state đó, nên người dùng
+    // thấy "thoát thành công" trong khi tên vừa gõ chưa hề được lưu — quay
+    // lại danh sách rồi mở lại bài thì title vẫn rỗng ("Chưa đặt tên"), và
+    // Dashboard/danh sách có thể báo lỗi tải ở lần fetch kế tiếp do cùng sự
+    // cố mạng đó. Giờ trả về true/false để handleBack() chỉ điều hướng khi
+    // save thật sự thành công, và hiện toast lỗi thật nếu không.
+    suspend fun manualSave(): Boolean {
+        val lessonId = _uiState.value.lessonId ?: return true
         autoSaveJob?.cancel()
         val s = _uiState.value
         if (repo.isDuplicateTitle(s.title, s.lessonId, allLessonsProvider())) {
             _uiState.update { it.copy(saveStatus = SaveStatus.DUP_BLOCKED, lastError = "Tên bài tập bị trùng") }
-            return
+            return false
         }
         _uiState.update { it.copy(saveStatus = SaveStatus.SAVING) }
-        try {
+        return try {
             repo.save(
                 Lesson(
                     id = lessonId,
@@ -125,8 +135,10 @@ class LessonEditorViewModel(
                 )
             )
             _uiState.update { it.copy(saveStatus = SaveStatus.SAVED, lastError = null) }
+            true
         } catch (e: Exception) {
             _uiState.update { it.copy(saveStatus = SaveStatus.ERROR, lastError = e.message) }
+            false
         }
     }
 
