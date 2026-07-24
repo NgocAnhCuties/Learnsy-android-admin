@@ -129,7 +129,12 @@ fun LessonEditorScreen(
 
     androidx.activity.compose.BackHandler(onBack = { handleBack() })
 
-    Column(modifier = Modifier.fillMaxSize().padding(12.dp, 14.dp, 12.dp, 100.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(12.dp, 14.dp, 12.dp, 100.dp)
+    ) {
         // Hàng 1 — logo + badge "Quiz Builder", tương đương header trên cùng web
         // (logo-fl/logo-learnsy/logo-flb trong app.jsx) — dùng cùng khối "L" trên nền
         // gradient hồng-tím bo góc như header Bài học/Admin để đồng bộ toàn app,
