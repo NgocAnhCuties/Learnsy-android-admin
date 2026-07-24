@@ -40,6 +40,7 @@ import com.learnsy.admin.data.newQuestion
 import com.learnsy.admin.ui.LessonEditorViewModel
 import com.learnsy.admin.ui.SaveStatus
 import com.learnsy.admin.ui.ToastCenter
+import com.learnsy.admin.ui.components.BowIcon
 import com.learnsy.admin.ui.components.QEditor
 import com.learnsy.admin.ui.components.SparkleIcon
 import com.learnsy.admin.ui.branding.AtomBadge
@@ -133,7 +134,7 @@ fun LessonEditorScreen(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(12.dp, 14.dp, 12.dp, 100.dp)
+            .padding(start = 12.dp, top = 13.dp, end = 12.dp, bottom = 120.dp)
     ) {
         // Hàng 1 — logo + badge "Quiz Builder", tương đương header trên cùng web
         // (logo-fl/logo-learnsy/logo-flb trong app.jsx) — dùng cùng khối "L" trên nền
@@ -266,61 +267,157 @@ fun LessonEditorScreen(
             SaveStatusButton(status = state.saveStatus, lastError = state.lastError, colors = colors)
         }
 
+        // Card "Tên bài học" — khớp JSX dòng 1524-1682: MỘT card duy nhất bọc
+        // TẤT CẢ (Tên bài học, Môn học, Mật khẩu, nút toggle + nội dung Cài đặt
+        // đề thi). Bản sửa trước đây tách thành 2 card riêng là SAI cấu trúc.
         Column(
-            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(colors.surface)
-                .border(1.5.dp, colors.border, RoundedCornerShape(16.dp)).padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            modifier = Modifier.fillMaxWidth()
+                .shadow(3.dp, RoundedCornerShape(18.dp), ambientColor = Color(0xFFFF6496), spotColor = Color(0xFFFF6496))
+                .clip(RoundedCornerShape(18.dp))
+                .background(colors.surface)
+                .border(1.5.dp, colors.border, RoundedCornerShape(18.dp))
+                .padding(horizontal = 15.dp, vertical = 13.dp)
         ) {
-            Column {
-                Text("TÊN BÀI HỌC", fontSize = 10.sp, fontWeight = FontWeight.Black, color = colors.text3, modifier = Modifier.padding(bottom = 4.dp))
-                OutlinedTextField(
-                    value = state.title, onValueChange = editorVm::setTitle,
-                    placeholder = { Text("VD: Unit 5 - Trang An") }, singleLine = true,
-                    shape = RoundedCornerShape(12.dp),
-                    isError = state.titleDupWarn, modifier = Modifier.fillMaxWidth()
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.padding(bottom = 8.dp)
+            ) {
+                BowIcon(size = 22)
+                Text(
+                    "TÊN BÀI HỌC", fontSize = 11.sp, fontWeight = FontWeight.Black,
+                    color = colors.rose, letterSpacing = 0.8.sp
                 )
-                if (state.titleDupWarn) {
-                    Text("⚠️ Tên bài đã tồn tại, hãy đổi tên khác", fontSize = 10.sp, color = Color(0xFFEF4444), modifier = Modifier.padding(top = 3.dp))
+            }
+            OutlinedTextField(
+                value = state.title, onValueChange = editorVm::setTitle,
+                placeholder = { Text("Nhập tên bài tập, ví dụ: Ôn tập Lịch sử Chương 3") }, singleLine = true,
+                shape = RoundedCornerShape(12.dp),
+                isError = state.titleDupWarn, modifier = Modifier.fillMaxWidth()
+            )
+            if (state.titleDupWarn) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.fillMaxWidth().padding(top = 6.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color(0xFFFEF2F2))
+                        .border(1.5.dp, Color(0xFFEF4444), RoundedCornerShape(10.dp))
+                        .padding(horizontal = 10.dp, vertical = 7.dp)
+                ) {
+                    Icon(Icons.Default.Warning, null, tint = Color(0xFFEF4444), modifier = Modifier.size(13.dp))
+                    Text(
+                        "Trùng tên với bài tập khác — sẽ không lưu được, đổi tên khác nhé!",
+                        fontSize = 11.5.sp, fontWeight = FontWeight.Black, color = Color(0xFFEF4444)
+                    )
                 }
-                if (noTitleWarn) {
+            }
+            if (noTitleWarn) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.fillMaxWidth().padding(top = 6.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color(0xFFFEF2F2))
+                        .border(1.5.dp, Color(0xFFEF4444), RoundedCornerShape(10.dp))
+                        .padding(horizontal = 10.dp, vertical = 7.dp)
+                ) {
+                    Icon(Icons.Default.Warning, null, tint = Color(0xFFEF4444), modifier = Modifier.size(13.dp))
+                    Text(
+                        "Chưa đặt tên bài tập — đặt tên trước khi thoát nhé!",
+                        fontSize = 11.5.sp, fontWeight = FontWeight.Black, color = Color(0xFFEF4444)
+                    )
+                }
+            }
+            // Môn học — khớp JSX dòng 1549: label + pill dropdown INLINE trên cùng dòng,
+            // không phải ExposedDropdownMenuBox full-width như trước.
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(top = 8.dp)
+            ) {
+                Text(
+                    "Môn học:", fontSize = 11.sp, fontWeight = FontWeight.Black,
+                    color = colors.text3, letterSpacing = 0.5.sp
+                )
+                var subjExpanded by remember { mutableStateOf(false) }
+                Box {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        modifier = Modifier.fillMaxWidth().padding(top = 6.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(Color(0xFFFEF2F2))
-                            .border(1.5.dp, Color(0xFFEF4444), RoundedCornerShape(10.dp))
-                            .padding(horizontal = 10.dp, vertical = 7.dp)
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(999.dp))
+                            .background(if (subjExpanded) colors.lavL else colors.bg)
+                            .border(1.5.dp, if (subjExpanded) colors.lav else colors.border, RoundedCornerShape(999.dp))
+                            .clickable { subjExpanded = !subjExpanded }
+                            .padding(horizontal = 13.dp, vertical = 5.dp)
                     ) {
-                        Icon(Icons.Default.Warning, null, tint = Color(0xFFEF4444), modifier = Modifier.size(13.dp))
+                        // Icon sách mở — khớp SVG path JSX dòng 1558 (hai trang sách gập)
+                        Icon(Icons.Default.MenuBook, null, tint = if (subjExpanded) colors.lav else colors.text2, modifier = Modifier.size(12.dp))
                         Text(
-                            "Chưa đặt tên bài tập — đặt tên trước khi thoát nhé!",
-                            fontSize = 11.5.sp, fontWeight = FontWeight.Black, color = Color(0xFFEF4444)
+                            state.subject, fontSize = 12.sp, fontWeight = FontWeight.Black,
+                            color = if (subjExpanded) colors.lav else colors.text2
+                        )
+                        Icon(
+                            if (subjExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                            null, tint = if (subjExpanded) colors.lav else colors.text2, modifier = Modifier.size(10.dp)
                         )
                     }
-                }
-            }
-
-            Column {
-                Text("MÔN HỌC", fontSize = 10.sp, fontWeight = FontWeight.Black, color = colors.text3, modifier = Modifier.padding(bottom = 4.dp))
-                var subjExpanded by remember { mutableStateOf(false) }
-                ExposedDropdownMenuBox(expanded = subjExpanded, onExpandedChange = { subjExpanded = it }) {
-                    OutlinedTextField(
-                        value = state.subject, onValueChange = { }, readOnly = true,
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.fillMaxWidth().menuAnchor(),
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = subjExpanded) }
-                    )
-                    ExposedDropdownMenu(expanded = subjExpanded, onDismissRequest = { subjExpanded = false }) {
+                    DropdownMenu(expanded = subjExpanded, onDismissRequest = { subjExpanded = false }) {
                         SUBJECTS.forEach { s ->
                             DropdownMenuItem(text = { Text(s) }, onClick = { editorVm.setSubject(s); subjExpanded = false })
                         }
                     }
                 }
             }
-
+            // Mật khẩu — khớp JSX dòng 1588: LUÔN hiển thị (không nằm trong phần
+            // Cài đặt đề thi mở rộng như bản sửa trước đây nhầm vị trí).
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(top = 8.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Icon(Icons.Default.Lock, null, tint = colors.text3, modifier = Modifier.size(11.dp))
+                    Text(
+                        "Mật khẩu:", fontSize = 11.sp, fontWeight = FontWeight.Black,
+                        color = colors.text3, letterSpacing = 0.5.sp
+                    )
+                }
+                OutlinedTextField(
+                    value = state.password, onValueChange = editorVm::setPassword,
+                    placeholder = { Text("Để trống = không cần mật khẩu", fontSize = 12.sp) },
+                    singleLine = true,
+                    shape = RoundedCornerShape(999.dp),
+                    textStyle = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Bold),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = colors.lav,
+                        unfocusedBorderColor = if (state.password.isNotEmpty()) colors.lav else colors.border,
+                        focusedContainerColor = if (state.password.isNotEmpty()) colors.lavPale else Color.Transparent,
+                        unfocusedContainerColor = if (state.password.isNotEmpty()) colors.lavPale else Color.Transparent
+                    ),
+                    modifier = Modifier.weight(1f).heightIn(min = 38.dp)
+                )
+                // Badge "Đã đặt" khi có mật khẩu — khớp JSX dòng 1595, trước đó thiếu hoàn toàn.
+                if (state.password.isNotEmpty()) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(999.dp))
+                            .background(colors.lavL)
+                            .border(1.dp, colors.border2, RoundedCornerShape(999.dp))
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                    ) {
+                        Icon(Icons.Default.Lock, null, tint = colors.lav, modifier = Modifier.size(11.dp))
+                        Text("Đã đặt", fontSize = 10.sp, fontWeight = FontWeight.ExtraBold, color = colors.lav)
+                    }
+                }
+            }
+            // Khớp JSX dòng 1598: {marginTop:10} — nút toggle Cài đặt đề thi nằm NGAY
+            // TRONG cùng Title card (không phải card riêng như bản sửa trước đây nhầm).
             var settingsExpanded by remember { mutableStateOf(false) }
-            Column {
+            Column(modifier = Modifier.padding(top = 10.dp)) {
                 // Khớp JSX: nút pill gọn 'padding:6px 13px', border đổi màu theo trạng thái mở,
                 // KHÔNG chiếm full width (trước đó Compose dùng Row full-width sai kiểu).
                 Row(
@@ -356,44 +453,6 @@ fun LessonEditorScreen(
                             .padding(horizontal = 14.dp, vertical = 13.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Icon(Icons.Default.Lock, null, tint = colors.text3, modifier = Modifier.size(11.dp))
-                            Text(
-                                "Mật khẩu:", fontSize = 11.sp, fontWeight = FontWeight.Black,
-                                color = colors.text3, letterSpacing = 0.5.sp
-                            )
-                            OutlinedTextField(
-                                value = state.password, onValueChange = editorVm::setPassword,
-                                placeholder = { Text("Để trống = không cần mật khẩu", fontSize = 12.sp) },
-                                singleLine = true,
-                                shape = RoundedCornerShape(999.dp),
-                                textStyle = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Bold),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = colors.lav,
-                                    unfocusedBorderColor = if (state.password.isNotEmpty()) colors.lav else colors.border,
-                                    focusedContainerColor = if (state.password.isNotEmpty()) colors.lavPale else Color.Transparent,
-                                    unfocusedContainerColor = if (state.password.isNotEmpty()) colors.lavPale else Color.Transparent
-                                ),
-                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 5.dp),
-                                modifier = Modifier.weight(1f)
-                            )
-                            // Badge "Đã đặt" khi có mật khẩu — khớp JSX dòng 1595, trước đó thiếu hoàn toàn.
-                            if (state.password.isNotEmpty()) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(999.dp))
-                                        .background(colors.lavL)
-                                        .border(1.dp, colors.border2, RoundedCornerShape(999.dp))
-                                        .padding(horizontal = 8.dp, vertical = 2.dp)
-                                ) {
-                                    Icon(Icons.Default.Lock, null, tint = colors.lav, modifier = Modifier.size(11.dp))
-                                    Text("Đã đặt", fontSize = 10.sp, fontWeight = FontWeight.ExtraBold, color = colors.lav)
-                                }
-                            }
-                        }
-
                         // Khớp JSX: label và các nút cùng chung 1 FlowRow (flexWrap), không
                         // tách label ra dòng riêng như trước. padding nút: '4px 11px'.
                         FlowRow(
