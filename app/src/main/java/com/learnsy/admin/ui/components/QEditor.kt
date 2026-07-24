@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -75,6 +76,8 @@ fun QEditor(
     Column(
         modifier = modifier
             .fillMaxWidth()
+            // Đổ bóng nhẹ hồng — khớp boxShadow:'0 3px 16px rgba(255,100,150,0.06)' trong JSX
+            .shadow(3.dp, RoundedCornerShape(18.dp), ambientColor = Color(0xFFFF6496), spotColor = Color(0xFFFF6496))
             .clip(RoundedCornerShape(18.dp))
             .background(colors.surface)
             .border(1.5.dp, colors.border, RoundedCornerShape(18.dp))
@@ -94,62 +97,64 @@ fun QEditor(
                 .fillMaxWidth()
                 .clickable { open = !open }
                 .background(if (open) colors.surface else colors.bg)
-                .padding(horizontal = 10.dp, vertical = 7.dp),
+                .padding(horizontal = 13.dp, vertical = 11.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
+            horizontalArrangement = Arrangement.spacedBy(9.dp)
         ) {
             Box(
                 modifier = Modifier
-                    .size(19.dp)
-                    .clip(RoundedCornerShape(6.dp))
+                    .shadow(2.dp, RoundedCornerShape(9.dp), ambientColor = Color(0xFFA855F7), spotColor = Color(0xFFA855F7))
+                    .size(26.dp)
+                    .clip(RoundedCornerShape(9.dp))
                     .background(colors.grad),
                 contentAlignment = Alignment.Center
             ) {
-                Text("${qi + 1}", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Black)
+                Text("${qi + 1}", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Black)
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier
                     .clip(RoundedCornerShape(999.dp))
                     .background(accentColor.copy(alpha = 0.12f))
                     .border(1.dp, accentColor.copy(alpha = 0.3f), RoundedCornerShape(999.dp))
-                    .padding(horizontal = 5.dp, vertical = 2.dp)
+                    .padding(start = 4.dp, end = 8.dp, top = 3.dp, bottom = 3.dp)
             ) {
                 // Icon theo loại câu hỏi — khớp getTypes() trong app.jsx:
                 // true_false→Flower, multiple→Heart, multi_select→Star, fill_blank→Sparkle
                 when (q) {
-                    is Question.TrueFalse -> FlowerIcon(size = 9, color = accentColor)
-                    is Question.Multiple -> HeartIcon(size = 9, color = accentColor)
-                    is Question.MultiSelect -> Icon(Icons.Default.Star, null, tint = accentColor, modifier = Modifier.size(9.dp))
-                    is Question.FillBlank -> SparkleIcon(size = 9, color = accentColor)
+                    is Question.TrueFalse -> FlowerIcon(size = 15, color = accentColor)
+                    is Question.Multiple -> HeartIcon(size = 15, color = accentColor)
+                    is Question.MultiSelect -> Icon(Icons.Default.Star, null, tint = accentColor, modifier = Modifier.size(15.dp))
+                    is Question.FillBlank -> SparkleIcon(size = 15, color = accentColor)
                 }
-                Text(typeShort, fontSize = 8.sp, fontWeight = FontWeight.Black, color = accentColor)
+                Text(typeShort, fontSize = 10.sp, fontWeight = FontWeight.Black, color = accentColor)
             }
             Text(
                 previewText,
                 modifier = Modifier.weight(1f),
-                fontSize = 11.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 color = colors.text2,
                 maxLines = 1
             )
             if (canRemove) {
-                IconButton(
-                    onClick = onRemove,
+                Box(
                     modifier = Modifier
-                        .size(19.dp)
+                        .size(26.dp)
                         .clip(CircleShape)
                         .background(colors.rosePale)
-                        .border(1.dp, Color(0xFFFECDD3), CircleShape)
+                        .border(1.5.dp, Color(0xFFFECDD3), CircleShape)
+                        .clickable { onRemove() },
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.Close, "Xoá câu hỏi", tint = Color(0xFFEF4444), modifier = Modifier.size(9.dp))
+                    Icon(Icons.Default.Close, "Xoá câu hỏi", tint = Color(0xFFEF4444), modifier = Modifier.size(12.dp))
                 }
             }
             val rotation by animateFloatAsState(if (open) 180f else 0f, animationSpec = tween(200), label = "chevron")
             Box(
                 modifier = Modifier
-                    .size(16.dp)
+                    .size(22.dp)
                     .clip(CircleShape)
                     .background(if (open) colors.lavL else Color.Transparent),
                 contentAlignment = Alignment.Center
@@ -158,7 +163,7 @@ fun QEditor(
                     Icons.Default.KeyboardArrowDown,
                     contentDescription = if (open) "Thu gọn" else "Mở rộng",
                     tint = if (open) colors.lav else colors.text4,
-                    modifier = Modifier.size(11.dp).rotate(rotation)
+                    modifier = Modifier.size(14.dp).rotate(rotation)
                 )
             }
         }
@@ -167,7 +172,16 @@ fun QEditor(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 13.dp, vertical = 12.dp),
+                    // Viền phân cách header/body — khớp borderTop:'1px solid C.border' trong JSX
+                    .drawBehind {
+                        drawLine(
+                            color = colors.border,
+                            start = androidx.compose.ui.geometry.Offset(0f, 0f),
+                            end = androidx.compose.ui.geometry.Offset(size.width, 0f),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                    }
+                    .padding(start = 13.dp, top = 11.dp, end = 13.dp, bottom = 14.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 when (q) {
@@ -187,6 +201,36 @@ private fun FieldLabel(text: String, colors: LearnsyColors) {
         text.uppercase(java.util.Locale("vi")), fontSize = 11.sp, fontWeight = FontWeight.Black,
         color = colors.text2, letterSpacing = 0.8.sp
     )
+}
+
+// Nút "Thêm ý" / "Thêm lựa chọn" — khớp JSX: padding '6px 14px', borderRadius 999,
+// border 1.5px dashed C.lav2, background C.lavL, gap 5, fontSize 12 weight 800.
+@Composable
+private fun AddButton(text: String, colors: LearnsyColors, onClick: () -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        modifier = Modifier
+            .clip(RoundedCornerShape(999.dp))
+            .background(colors.lavL)
+            .drawBehind {
+                val strokeWidthPx = 1.5.dp.toPx()
+                val cornerRadiusPx = size.minDimension / 2
+                drawRoundRect(
+                    color = colors.lav2,
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(
+                        width = strokeWidthPx,
+                        pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(6f, 4f), 0f)
+                    ),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(cornerRadiusPx, cornerRadiusPx)
+                )
+            }
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 6.dp)
+    ) {
+        Icon(Icons.Default.Add, null, tint = colors.lav, modifier = Modifier.size(12.dp))
+        Text(text, fontSize = 12.sp, fontWeight = FontWeight.Black, color = colors.lav)
+    }
 }
 
 @Composable
@@ -228,88 +272,111 @@ private fun TrueFalseFields(
             )
         )
     }
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Icon(Icons.Default.Edit, null, tint = colors.rose, modifier = Modifier.size(12.dp))
             FieldLabel("Các ý — bấm ✓ ✗ để đặt đáp án", colors)
         }
-        q.items.forEachIndexed { ii, item ->
-            Row(
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Box(
-                    modifier = Modifier
-                        .padding(top = 9.dp)
-                        .size(22.dp)
-                        .clip(RoundedCornerShape(7.dp))
-                        .background(colors.lavL)
-                        .border(1.dp, colors.border2, RoundedCornerShape(7.dp)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(('a' + ii).toString(), fontSize = 11.sp, fontWeight = FontWeight.Black, color = colors.lav)
-                }
-                MiniRichInp(
-                    valueHtml = item.text,
-                    onChange = { text ->
-                        onChange(q.copy(items = q.items.mapIndexed { i, it -> if (i == ii) it.copy(text = text) else it }))
-                    },
-                    placeholder = "Ý ${('a' + ii)}...",
-                    colors = colors,
-                    modifier = Modifier.weight(1f)
-                )
+        // Danh sách các ý — khớp JSX: div flexDirection:column, gap:7
+        Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+            q.items.forEachIndexed { ii, item ->
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(2.dp),
-                    modifier = Modifier.padding(top = 4.dp)
+                    verticalAlignment = Alignment.Top,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    IconButton(
-                        onClick = {
-                            onChange(q.copy(items = q.items.mapIndexed { i, it -> if (i == ii) it.copy(answer = true) else it }))
-                        },
+                    // Khớp bản gốc: width 22, height 22, borderRadius 7, marginTop 9, fontSize 11
+                    Box(
                         modifier = Modifier
-                            .size(18.dp)
-                            .clip(RoundedCornerShape(5.dp))
-                            .background(if (item.answer) Color(0xFF10B981) else colors.mintL)
-                            .border(1.dp, if (item.answer) Color.Transparent else Color(0xFFBBF7D0), RoundedCornerShape(5.dp))
+                            .padding(top = 9.dp)
+                            .size(22.dp)
+                            .clip(RoundedCornerShape(7.dp))
+                            .background(colors.lavL)
+                            .border(1.dp, colors.border2, RoundedCornerShape(7.dp)),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.Check, "Đúng", tint = if (item.answer) Color.White else colors.mint, modifier = Modifier.size(8.dp))
+                        Text(('a' + ii).toString(), fontSize = 11.sp, fontWeight = FontWeight.Black, color = colors.lav)
                     }
-                    IconButton(
-                        onClick = {
-                            onChange(q.copy(items = q.items.mapIndexed { i, it -> if (i == ii) it.copy(answer = false) else it }))
+                    MiniRichInp(
+                        valueHtml = item.text,
+                        onChange = { text ->
+                            onChange(q.copy(items = q.items.mapIndexed { i, it -> if (i == ii) it.copy(text = text) else it }))
                         },
-                        modifier = Modifier
-                            .size(18.dp)
-                            .clip(RoundedCornerShape(5.dp))
-                            .background(if (!item.answer) Color(0xFFEF4444) else colors.rosePale)
-                            .border(1.dp, if (!item.answer) Color.Transparent else Color(0xFFFECDD3), RoundedCornerShape(5.dp))
+                        placeholder = "Ý ${('a' + ii)}...",
+                        colors = colors,
+                        modifier = Modifier.weight(1f)
+                    )
+                    // Cụm nút ✓ ✗ – khớp số đo bản gốc question-editor.jsx:
+                    // nút ✓/✗ là 34×34, radius 9, icon 14dp, border 1.5px, gap 4px, marginTop 4.
+                    // Nút xoá là 30×34 (không vuông), radius 9, icon 12dp.
+                    // Dùng Box + clickable thay vì IconButton: IconButton ép minimum touch
+                    // target 48dp bất kể .size() đặt sau, khiến slot cố định bị tràn ra
+                    // ngoài card. Box + clickable tôn trọng đúng kích thước mình khai báo.
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.padding(top = 4.dp)
                     ) {
-                        Icon(Icons.Default.Close, "Sai", tint = if (!item.answer) Color.White else Color(0xFFEF4444), modifier = Modifier.size(8.dp))
-                    }
-                    if (q.items.size > 2) {
-                        IconButton(
-                            onClick = {
-                                onChange(q.copy(items = q.items.filterIndexed { i, _ -> i != ii }))
-                            },
+                        Box(
                             modifier = Modifier
-                                .width(15.dp)
-                                .height(18.dp)
-                                .clip(RoundedCornerShape(5.dp))
-                                .background(colors.bg)
-                                .border(1.dp, colors.border, RoundedCornerShape(5.dp))
+                                .then(
+                                    if (item.answer)
+                                        Modifier.shadow(2.dp, RoundedCornerShape(9.dp), ambientColor = Color(0xFF10B981), spotColor = Color(0xFF10B981))
+                                    else Modifier
+                                )
+                                .size(34.dp)
+                                .clip(RoundedCornerShape(9.dp))
+                                .background(if (item.answer) Color(0xFF10B981) else colors.mintL)
+                                .border(1.5.dp, if (item.answer) Color.Transparent else Color(0xFFBBF7D0), RoundedCornerShape(9.dp))
+                                .clickable {
+                                    onChange(q.copy(items = q.items.mapIndexed { i, it -> if (i == ii) it.copy(answer = true) else it }))
+                                },
+                            contentAlignment = Alignment.Center
                         ) {
-                            Icon(Icons.Default.Remove, "Xoá ý", tint = colors.text4, modifier = Modifier.size(7.dp))
+                            Icon(Icons.Default.Check, "Đúng", tint = if (item.answer) Color.White else colors.mint, modifier = Modifier.size(14.dp))
+                        }
+                        Box(
+                            modifier = Modifier
+                                .then(
+                                    if (!item.answer)
+                                        Modifier.shadow(2.dp, RoundedCornerShape(9.dp), ambientColor = Color(0xFFEF4444), spotColor = Color(0xFFEF4444))
+                                    else Modifier
+                                )
+                                .size(34.dp)
+                                .clip(RoundedCornerShape(9.dp))
+                                .background(if (!item.answer) Color(0xFFEF4444) else colors.rosePale)
+                                .border(1.5.dp, if (!item.answer) Color.Transparent else Color(0xFFFECDD3), RoundedCornerShape(9.dp))
+                                .clickable {
+                                    onChange(q.copy(items = q.items.mapIndexed { i, it -> if (i == ii) it.copy(answer = false) else it }))
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Default.Close, "Sai", tint = if (!item.answer) Color.White else Color(0xFFEF4444), modifier = Modifier.size(14.dp))
+                        }
+                        // Slot xoá luôn chiếm chỗ cố định (kể cả khi ẩn nút) để cột
+                        // không bị co giãn khi items.size == 2. 30×34 khớp bản gốc.
+                        Box(modifier = Modifier.width(30.dp).height(34.dp), contentAlignment = Alignment.Center) {
+                            if (q.items.size > 2) {
+                                Box(
+                                    modifier = Modifier
+                                        .width(30.dp)
+                                        .height(34.dp)
+                                        .clip(RoundedCornerShape(9.dp))
+                                        .background(colors.bg)
+                                        .border(1.5.dp, colors.border, RoundedCornerShape(9.dp))
+                                        .clickable {
+                                            onChange(q.copy(items = q.items.filterIndexed { i, _ -> i != ii }))
+                                        },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(Icons.Default.Remove, "Xoá ý", tint = colors.text4, modifier = Modifier.size(12.dp))
+                                }
+                            }
                         }
                     }
                 }
             }
         }
-        TextButton(onClick = { onChange(q.copy(items = q.items + TFItem("", true))) }) {
-            Icon(Icons.Default.Add, null, modifier = Modifier.size(12.dp))
-            Spacer(Modifier.width(5.dp))
-            Text("Thêm ý", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-        }
+        AddButton("Thêm ý", colors) { onChange(q.copy(items = q.items + TFItem("", true))) }
     }
 }
 
@@ -334,12 +401,18 @@ private fun MultipleFields(
         q.options.forEachIndexed { i, opt ->
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                 val isCorrect = q.correct == i
-                IconButton(
-                    onClick = { onChange(q.copy(correct = i)) },
+                Box(
                     modifier = Modifier
+                        .then(
+                            if (isCorrect)
+                                Modifier.shadow(2.dp, CircleShape, ambientColor = Color(0xFF10B981), spotColor = Color(0xFF10B981))
+                            else Modifier
+                        )
                         .size(30.dp)
                         .clip(CircleShape)
                         .background(if (isCorrect) Color(0xFF10B981) else colors.lavL)
+                        .clickable { onChange(q.copy(correct = i)) },
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(LETTERS[i], fontSize = 12.sp, fontWeight = FontWeight.Black, color = if (isCorrect) Color.White else colors.lav)
                 }
@@ -353,17 +426,22 @@ private fun MultipleFields(
                     modifier = Modifier.weight(1f)
                 )
                 if (q.options.size > 2) {
-                    IconButton(
-                        onClick = {
-                            val newOptions = q.options.filterIndexed { idx, _ -> idx != i }
-                            val newCorrect = when {
-                                q.correct == i -> 0
-                                q.correct > i -> q.correct - 1
-                                else -> q.correct
-                            }
-                            onChange(q.copy(options = newOptions, correct = newCorrect))
-                        },
-                        modifier = Modifier.size(26.dp)
+                    Box(
+                        modifier = Modifier
+                            .size(26.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(colors.bg)
+                            .border(1.5.dp, colors.border, RoundedCornerShape(8.dp))
+                            .clickable {
+                                val newOptions = q.options.filterIndexed { idx, _ -> idx != i }
+                                val newCorrect = when {
+                                    q.correct == i -> 0
+                                    q.correct > i -> q.correct - 1
+                                    else -> q.correct
+                                }
+                                onChange(q.copy(options = newOptions, correct = newCorrect))
+                            },
+                        contentAlignment = Alignment.Center
                     ) {
                         Icon(Icons.Default.Close, "Xoá lựa chọn", tint = colors.text4, modifier = Modifier.size(11.dp))
                     }
@@ -371,11 +449,7 @@ private fun MultipleFields(
             }
         }
         if (q.options.size < 6) {
-            TextButton(onClick = { onChange(q.copy(options = q.options + "")) }) {
-                Icon(Icons.Default.Add, null, modifier = Modifier.size(12.dp))
-                Spacer(Modifier.width(5.dp))
-                Text("Thêm lựa chọn", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-            }
+            AddButton("Thêm lựa chọn", colors) { onChange(q.copy(options = q.options + "")) }
         }
     }
 }
@@ -401,14 +475,20 @@ private fun MultiSelectFields(
         q.options.forEachIndexed { i, opt ->
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                 val isCorrect = i in q.correct
-                IconButton(
-                    onClick = {
-                        onChange(q.copy(correct = if (i in q.correct) q.correct - i else q.correct + i))
-                    },
+                Box(
                     modifier = Modifier
+                        .then(
+                            if (isCorrect)
+                                Modifier.shadow(2.dp, RoundedCornerShape(9.dp), ambientColor = Color(0xFF10B981), spotColor = Color(0xFF10B981))
+                            else Modifier
+                        )
                         .size(30.dp)
                         .clip(RoundedCornerShape(9.dp))
                         .background(if (isCorrect) Color(0xFF10B981) else colors.lavL)
+                        .clickable {
+                            onChange(q.copy(correct = if (i in q.correct) q.correct - i else q.correct + i))
+                        },
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(LETTERS[i], fontSize = 12.sp, fontWeight = FontWeight.Black, color = if (isCorrect) Color.White else colors.lav)
                 }
@@ -422,19 +502,24 @@ private fun MultiSelectFields(
                     modifier = Modifier.weight(1f)
                 )
                 if (q.options.size > 2) {
-                    IconButton(
-                        onClick = {
-                            val newOptions = q.options.filterIndexed { idx, _ -> idx != i }
-                            val newCorrect = q.correct.mapNotNull { c ->
-                                when {
-                                    c == i -> null
-                                    c > i -> c - 1
-                                    else -> c
+                    Box(
+                        modifier = Modifier
+                            .size(26.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(colors.bg)
+                            .border(1.5.dp, colors.border, RoundedCornerShape(8.dp))
+                            .clickable {
+                                val newOptions = q.options.filterIndexed { idx, _ -> idx != i }
+                                val newCorrect = q.correct.mapNotNull { c ->
+                                    when {
+                                        c == i -> null
+                                        c > i -> c - 1
+                                        else -> c
+                                    }
                                 }
-                            }
-                            onChange(q.copy(options = newOptions, correct = newCorrect))
-                        },
-                        modifier = Modifier.size(26.dp)
+                                onChange(q.copy(options = newOptions, correct = newCorrect))
+                            },
+                        contentAlignment = Alignment.Center
                     ) {
                         Icon(Icons.Default.Close, "Xoá lựa chọn", tint = colors.text4, modifier = Modifier.size(11.dp))
                     }
@@ -442,11 +527,7 @@ private fun MultiSelectFields(
             }
         }
         if (q.options.size < 6) {
-            TextButton(onClick = { onChange(q.copy(options = q.options + "")) }) {
-                Icon(Icons.Default.Add, null, modifier = Modifier.size(12.dp))
-                Spacer(Modifier.width(5.dp))
-                Text("Thêm lựa chọn", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-            }
+            AddButton("Thêm lựa chọn", colors) { onChange(q.copy(options = q.options + "")) }
         }
     }
 }
